@@ -1,11 +1,14 @@
 import { Webhook } from "svix";
 import User from "../models/User.js";
 
-//API Controller Function to mange Clerk Usr with Database
+//API Controller Function to mange Clerk User with Database
 
 export const clerkWebhooks = async (req, res) => {
+    console.log("🔥 Webhook Request Received!");
     try{
         const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
+
+        console.log(`--- Received Webhook Type: ${type} ---`)
 
         await whook.verify(JSON.stringify(req.body),{
             "svix-id": req.headers["svix-id"],
@@ -23,7 +26,12 @@ export const clerkWebhooks = async (req, res) => {
                     name: data.first_name + " " + data.last_name,
                     imageUrl: data.imageUrl,
                 }
-                await User.create(userData)
+                try {
+                    const newUser = await User.create(userData)
+                    console.log(`✅ SUCCESS: User created with ID: ${newUser._id}`);
+                } catch (dbError) {
+                    console.error("❌ DB CREATE ERROR:", dbError.message);
+                }
                 res.json({})
                 break;
             }
@@ -49,6 +57,7 @@ export const clerkWebhooks = async (req, res) => {
                 break;
         }
     } catch (error) {
+        console.error('Webhook Error:', error.message)
         res.json({success: false, message:error.message})
     }
 }

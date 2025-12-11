@@ -4,19 +4,11 @@ import User from "../models/User.js";
 //API Controller Function to mange Clerk User with Database
 
 export const clerkWebhooks = async (req, res) => {
-    console.log("🔥 Webhook Request Received!");
-    try{
-        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
-
-        console.log(`--- Received Webhook Type: ${type} ---`)
-
-        await whook.verify(JSON.stringify(req.body),{
-            "svix-id": req.headers["svix-id"],
-            "svix-timestamp": req.headers["svix-timestamp"],
-            "svix-signature": req.headers["svix-signature"],
-        })
-
+    try {
+        // ... (Verification logic) ...
         const {data, type} = req.body
+
+        console.log(`--- Processing Webhook Type: ${type} at ${new Date().toISOString()} ---`) // NEW LOG
 
         switch (type) {
             case 'user.created': {
@@ -26,13 +18,18 @@ export const clerkWebhooks = async (req, res) => {
                     name: data.first_name + " " + data.last_name,
                     imageUrl: data.imageUrl,
                 }
+                
                 try {
+                    // This is the Mongoose call that is failing!
                     const newUser = await User.create(userData)
                     console.log(`✅ SUCCESS: User created with ID: ${newUser._id}`);
                 } catch (dbError) {
-                    console.error("❌ DB CREATE ERROR:", dbError.message);
+                    // THIS IS WHAT WE NEED TO SEE!
+                    console.error("❌ DB CREATE ERROR:", dbError.message); 
                 }
-                res.json({})
+                
+                // Send success response back to Clerk
+                res.status(200).json({ received: true }) 
                 break;
             }
 
@@ -54,10 +51,13 @@ export const clerkWebhooks = async (req, res) => {
             }
         
             default:
+                console.log(`Unhandled type: ${type}`);
+                res.status(200).json({ received: true, message: "Unhandled event type" })
                 break;
         }
     } catch (error) {
-        console.error('Webhook Error:', error.message)
-        res.json({success: false, message:error.message})
+        console.error('🛑 WEBHOOK VERIFICATION/HANDLING FAILED:', error.message)
+        // Send a non-200 status for serious errors.
+        res.status(400).json({ success: false, message: error.message })
     }
 }

@@ -12,7 +12,7 @@ export const getUserData = async (req,res)=>{
         if(!user){
             return res.json({ success: false, message: 'User Not Found' })
         }
-        res.jsoon({ success: true, user })
+        res.json({ success: true, user })
     } catch (error) {
         res.json({ success: false, message: error.message })
     }

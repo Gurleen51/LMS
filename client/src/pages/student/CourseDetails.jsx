@@ -96,7 +96,7 @@ const CourseDetails = () => {
     {/* left column */}
     <div className='max-w-xl z-10 text-gray-500'>
       <h1 className='md:text-course-details-heading-large text-course-details-heading-small font-semibold text-gray-800'>{courseData.courseTitle}</h1>
-      <p className='pt-4 md:text-base text-sm' dangerouslySetInnerHTML={{__html: courseData.courseDescription.slice(0,200)}}></p>
+      <p className='pt-4 md:text-base text-sm' dangerouslySetInnerHTML={{__html: courseData.courseDescription.slice(0,80)}}></p>
       
       {/* review and rating */}
       <div className='flex items-center space-x-2 pt-3 pb-1 text-sm'>
@@ -159,7 +159,7 @@ const CourseDetails = () => {
       {
         playerData ? 
         <YouTube videoId={playerData.videoId} opts={{ playerVars: { origin: window.location.origin, autoplay: 1 } }} iframeClassName= 'w-full aspect-video'/>
-        : <img src={courseData.courseThumbnail} alt="" />
+        : <img src={courseData.courseThumbnail} alt="" className="w-full aspect-video object-cover" />
 
       }
       

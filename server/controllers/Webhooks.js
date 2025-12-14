@@ -18,7 +18,7 @@ export const clerkWebhooks = async (req, res) => {
 
         const {data, type} = req.body
 
-        switch (key) {
+        switch (type) {
             case 'user.created': {
                 const userData = {
                     _id: data.id,
@@ -27,7 +27,7 @@ export const clerkWebhooks = async (req, res) => {
                     imageUrl: data.imageUrl,
                 }
                 await User.create(userData)
-                res.Json({})
+                res.json({ success: true })
                 break;
             }
 
@@ -38,13 +38,13 @@ export const clerkWebhooks = async (req, res) => {
                     imageUrl: data.imageUrl,
                 }
                 await User.findByIdAndUpdate(data.id, userData)
-                res.Json({})
+                res.json({ success: true })
                 break;
             }
 
             case 'user.deleted': {
                 await User.findByIdAndDelete(data.id)
-                res.Json({})
+                res.json({ success: true })
                 break;
             }
         
@@ -52,7 +52,7 @@ export const clerkWebhooks = async (req, res) => {
                 break;
         }
     } catch (error) {
-        res.Json({success: false, message:error.message})
+        res.json({success: false, message:error.message})
     }
 }
 

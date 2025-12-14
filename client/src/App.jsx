@@ -13,6 +13,7 @@ import StudentsEnrolled from './pages/educator/StudentsEnrolled'
 import MyCourses from './pages/educator/MyCourses'
 import Navbar from './components/student/Navbar'
 import "quill/dist/quill.snow.css";
+import { ToastContainer } from 'react-toastify';
 
 <div className="p-10 bg-red-500 text-white text-3xl">
   Tailwind v4 Working 🚀
@@ -25,6 +26,7 @@ const App = () => {
 
   return (
     <div className='text-default min-h-screen bg-white'>
+      <ToastContainer />
       {!isEducatorRoute && <Navbar />}
       <Routes>
         <Route path='/' element={<Home />} />

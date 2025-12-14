@@ -100,7 +100,7 @@ export const updateUserCourseProgress = async (req, res)=>{
             progressData.lectureCompleted.push(lectureId)
             await progressData.save()
         }else{
-            await CourseProgress,create({
+            await CourseProgress.create({
                 userId,
                 courseId,
                 lectureCompleted: [lectureId]
@@ -145,7 +145,7 @@ export const addUserRating = async (req,res)=>{
 
         const user = await User.findById(userId);
 
-        if(!user || !user.enrolledCourses.includes(ccourseId)){
+        if(!user || !user.enrolledCourses.includes(courseId)){
             return res.json({ success: false, message: 'User has not Purchased this Course' });
         }
 

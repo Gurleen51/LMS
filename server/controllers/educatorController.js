@@ -1,6 +1,8 @@
 import { clerkClient} from '@clerk/express'
 import Course from '../models/Course.js'
 import { v2 as cloudinary} from 'cloudinary'
+import { Purchase } from "../models/Purchase.js"
+import User from '../models/User.js'
 
 
 //update role to educator
@@ -72,7 +74,7 @@ export const educatorDashboardData = async (req, res)=>{
             status: 'completed'
         });
 
-        const totalEarnings = Purchase.reduce((sum, purchase)=> sum + purchase.amount, 0);
+        const totalEarnings = purchases.reduce((sum, purchase)=> sum + purchase.amount, 0);
 
         // Collect unique enrolled student IDs with their course titles
         const enrolledStudentsData = [];
@@ -81,10 +83,10 @@ export const educatorDashboardData = async (req, res)=>{
                 _id: {$in: course.enrolledStudents}
             }, 'name imageUrl');
 
-            students.forEach(students => {
+            students.forEach(student => {
                 enrolledStudentsData.push({
                     courseTitle: course.courseTitle,
-                    student
+                    enrolledStudent: student
                 })
             })
         }
@@ -94,7 +96,7 @@ export const educatorDashboardData = async (req, res)=>{
         }})
 
     } catch (error) {
-        rse.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message })
     }
 }
 
@@ -108,7 +110,7 @@ export const getEnrolledStudentsData = async (req, res)=>{
         const purchases = await Purchase.find({
             courseId: {$in: courseIds },
             status: 'completed'
-        }).populate('iserId', 'name imageUrl').populate('courseId', 'courseTitle')
+        }).populate('userId', 'name imageUrl').populate('courseId', 'courseTitle')
 
         const enrolledStudents = purchases.map(purchase => ({
             student: purchase.userId,
@@ -119,6 +121,6 @@ export const getEnrolledStudentsData = async (req, res)=>{
         res.json({ success: true, enrolledStudents})
 
     } catch (error) {
-        rse.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message })
     }
 }

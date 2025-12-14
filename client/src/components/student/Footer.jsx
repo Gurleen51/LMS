@@ -7,7 +7,7 @@ const Footer = () => {
       <div className='flex flex-col md:flex-row items-start px-8 md::px-0 justify-center gap-10 md:gap-32 py-10 border-b border-white/30'>
         <div className='flex flex-col md:items-start items-center w-full'>
           <img src={assets.logo_dark} alt="logo" className='w-14' />
-          <p className='mt-5 text-center md:text-left text-sm text-white/80'>Your trusted learning platform.<br/> Join thousands of learners worldwide who are achieving their goals with our comprehensive and flexible online courses. We're dedicated to helping you master new skills. </p>
+          <p className='mt-5 text-center md:text-left text-sm text-white/80'>Your trusted learning platform.<br /> Join thousands of learners worldwide who are achieving their goals with our comprehensive and flexible online courses. We're dedicated to helping you master new skills. </p>
         </div>
         <div className='flex flex-col md:items-start items-center w-full'>
           <h2 className='font-semibold text-white mb-6'>Company</h2>
@@ -27,7 +27,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <p className='py-4 text-center text-xs md:text-sm text-white/60'>Copyright 2025 © Edemy. All Rights Reserved.</p>
+      <p className='py-4 text-center text-xs md:text-sm text-white/60'>Copyright 2025 © Kyndl. All Rights Reserved.</p>
     </footer>
   )
 }

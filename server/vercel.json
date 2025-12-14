@@ -27,10 +27,3 @@
       "src": "/stripe",
       "dest": "server/server.js"
     },
-    
-    {
-      "src": "/(.*)",
-      "dest": "client/dist/index.html"
-    }
-  ]
-}

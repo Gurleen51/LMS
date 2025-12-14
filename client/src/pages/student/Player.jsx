@@ -21,10 +21,14 @@ const Player = () => {
   const [initialRating, setInitialRating] = useState(0)
 
   const getCourseData = ()=>{
-    enrolledCourses.map((course)=>{
+    if (!userData) {
+      console.warn("Attempted to load course data before userData was available.");
+      return; 
+    }
+    enrolledCourses.forEach((course)=>{
       if(course._id === courseId){
         setCourseData(course)
-        course.courseRatings.map((item)=>{
+        course.courseRatings.forEach((item)=>{
           if(item.userId === userData._id){
             setInitialRating(item.rating)
           }
@@ -93,6 +97,13 @@ const Player = () => {
       toast.error(error.message)
     }
   }
+
+  const getYouTubeId = (url) => {
+    if (!url) return '';
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|embed\/|v\/|watch\?v=)|youtu\.be\/)([^&?]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : '';
+  };
 
   useEffect(()=>{
     getCourseProgress()

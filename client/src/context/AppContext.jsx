@@ -11,6 +11,7 @@ export const AppContext = createContext();
 export const AppContextProvider = (props) => {
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL
+    console.log("Context Backend URL:", backendUrl);
 
     const currency = import.meta.env.VITE_CURRENCY
     const navigate = useNavigate()
@@ -25,6 +26,8 @@ export const AppContextProvider = (props) => {
 
     //Fetch All Courses
     const fetchAllCourses = async () => {
+        if (!backendUrl) 
+            return toast.error("Configuration Error: Backend URL missing.");
         try {
             const {data} = await axios.get(backendUrl + '/api/course/all');
 
@@ -41,9 +44,15 @@ export const AppContextProvider = (props) => {
     // Fetch user data
     const fetchUserData = async ()=>{
 
-        if(user.publicMetadata.role === 'educator'){
+        if (!user || !backendUrl) 
+            return; 
+        
+        if(user.publicMetadata?.role === 'educator'){ 
             setIsEducator(true)
+        } else {
+            setIsEducator(false)
         }
+
         try {
             const token = await getToken();
 
@@ -52,7 +61,8 @@ export const AppContextProvider = (props) => {
             if(data.success){
                 setUserData(data.user)
             }else{
-                toast.error(data.message)
+                toast.error("User Not Found in DB: " + data.message); 
+                setUserData(null);
             }
         } catch (error) {
             toast.error(error.message)
@@ -98,6 +108,8 @@ export const AppContextProvider = (props) => {
 
     //Fetch user enrolled courses
     const fetchUserEnrolledCourses = async ()=>{
+        if (!user || !backendUrl) 
+            return;
         try{
             const token = await getToken();
             const { data } = await axios.get(backendUrl + '/api/user/enrolled-courses',{headers: { Authorization: `Bearer ${token}`}})
@@ -120,6 +132,10 @@ export const AppContextProvider = (props) => {
         if(user){
             fetchUserData()
             fetchUserEnrolledCourses()
+        }else{
+            setUserData(null);
+            setIsEducator(false);
+            setEnrolledCourses([]);
         }
     },[user])
 

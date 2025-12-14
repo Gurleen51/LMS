@@ -9,7 +9,6 @@ import connectCloudinary from './configs/cloudinary.js'
 import courseRouter from './routes/courseRoute.js'
 import userRouter from './routes/userRoutes.js'
 
-
 // Initialize Express
 const app = express()
 
@@ -17,21 +16,32 @@ const app = express()
 await connectDB()
 await connectCloudinary()
 
-// Middleware
 app.use(cors())
+
+app.use(
+    express.json({
+        verify: (req, res, buf) => {
+            if (req.originalUrl.startsWith('/clerk')) {
+                req.rawBody = buf.toString();
+            }
+        },
+        limit: '5mb', 
+    })
+);
+
 app.use(clerkMiddleware())
 
-//Routes
+// Routes
 app.get('/', (req, res)=> res.send("API Working"))
-app.post('/clerk', express.json(), clerkWebhooks)
-app.use('/api/educator', express.json(), educatorRouter)
-app.use('/api/course', express.json(), courseRouter)
-app.use('/api/user', express.json(), userRouter)
+app.post('/clerk', clerkWebhooks) 
+app.use('/api/educator', educatorRouter)
+app.use('/api/course', courseRouter)
+app.use('/api/user', userRouter)
 app.post('/stripe', express.raw({ type: 'application/json'}), stripeWebhooks)
 
 // Port
 const PORT = process.env.port || 5000
 
 app.listen(PORT, ()=> {
-    console.log(`Server is running on  port ${PORT}`)
+    console.log(`Server is running on port ${PORT}`)
 })

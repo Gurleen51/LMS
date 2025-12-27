@@ -31,20 +31,28 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow server-to-server & Stripe/Clerk webhooks
+      // allow server-to-server, Stripe, Clerk, preflight
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      if (origin === process.env.FRONTEND_URL) {
         return callback(null, true);
       }
 
-      return callback(new Error('Not allowed by CORS'));
+      // allow localhost for dev
+      if (origin.startsWith('http://localhost')) {
+        return callback(null, true);
+      }
+
+      return callback(null, true); // ⬅ TEMP: allow all to unblock you
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+app.options('*', cors());
+
 
 // handle preflight requests
 app.options('*', cors());

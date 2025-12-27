@@ -1,28 +1,25 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const Loading = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  useEffect(() => {
-    // ⛔ Safety check: only redirect if EXACT path is /loading
-    if (location.pathname !== "/loading") return;
-
-    const timer = setTimeout(() => {
-      navigate("/my-enrollments", { replace: true });
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [navigate, location.pathname]);
+  const { path } = useParams()
+  const navigate = useNavigate()
+  
+  useEffect(()=>{
+    if(path){
+      const timer = setTimeout(()=>{
+        navigate(`/${path}`)
+      }, 5000)
+      return ()=> clearTimeout(timer)
+    }
+  },[])
 
   return (
-    <div className="h-screen flex items-center justify-center">
-      <h2 className="text-xl font-semibold">
-        Finalizing your enrollment...
-      </h2>
+    <div className='min-h-screen flex items-center justify-center'>
+      <div className='w-16 sm:w-20 aspect-square border-4 border-gray-300 border-t-4 border-t-blue-400 rounded-full animate-spin'></div>
     </div>
-  );
-};
+  )
+}
 
-export default Loading;
+export default Loading

@@ -1,25 +1,21 @@
-import React, { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Loading = () => {
+  const navigate = useNavigate();
 
-  const { path } = useParams()
-  const navigate = useNavigate()
-  
-  useEffect(()=>{
-    if(path){
-      const timer = setTimeout(()=>{
-        navigate(`/${path}`)
-      }, 5000)
-      return ()=> clearTimeout(timer)
-    }
-  },[])
+  useEffect(() => {
+    // wait a bit for webhook to process
+    setTimeout(() => {
+      navigate("/my-enrollments");
+    }, 2000);
+  }, []);
 
   return (
-    <div className='min-h-screen flex items-center justify-center'>
-      <div className='w-16 sm:w-20 aspect-square border-4 border-gray-300 border-t-4 border-t-blue-400 rounded-full animate-spin'></div>
+    <div className="h-screen flex items-center justify-center">
+      <h2 className="text-xl font-semibold">Finalizing your enrollment...</h2>
     </div>
-  )
-}
+  );
+};
 
-export default Loading
+export default Loading;

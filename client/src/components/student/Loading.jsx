@@ -1,19 +1,26 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Loading = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // wait a bit for webhook to process
-    setTimeout(() => {
-      navigate("/my-enrollments");
+    // ⛔ Safety check: only redirect if EXACT path is /loading
+    if (location.pathname !== "/loading") return;
+
+    const timer = setTimeout(() => {
+      navigate("/my-enrollments", { replace: true });
     }, 2000);
-  }, []);
+
+    return () => clearTimeout(timer);
+  }, [navigate, location.pathname]);
 
   return (
     <div className="h-screen flex items-center justify-center">
-      <h2 className="text-xl font-semibold">Finalizing your enrollment...</h2>
+      <h2 className="text-xl font-semibold">
+        Finalizing your enrollment...
+      </h2>
     </div>
   );
 };

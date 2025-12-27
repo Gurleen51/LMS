@@ -1,24 +1,66 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
+
 import connectDB from './configs/mongodb.js';
 import connectCloudinary from './configs/cloudinary.js';
+
 import { clerkMiddleware } from '@clerk/express';
 import { clerkWebhooks, stripeWebhooks } from './controllers/Webhooks.js';
 
+import educatorRouter from './routes/educatorRoutes.js';
+import courseRouter from './routes/courseRoute.js';
+import userRouter from './routes/userRoutes.js';
+
 const app = express();
 
+/* =========================
+   DATABASE & CLOUDINARY
+   ========================= */
 await connectDB();
 await connectCloudinary();
 
-//STRIPE WEBHOOK (RAW BODY)
+/* =========================
+   CORS (MUST BE FIRST)
+   ========================= */
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173'
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow server-to-server & Stripe/Clerk webhooks
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+// handle preflight requests
+app.options('*', cors());
+
+/* =========================
+   STRIPE WEBHOOK (RAW BODY)
+   ========================= */
 app.post(
   '/stripe',
   express.raw({ type: 'application/json' }),
   stripeWebhooks
 );
 
-//CLERK WEBHOOK (RAW BODY)
+/* =========================
+   CLERK WEBHOOK (RAW BODY)
+   ========================= */
 app.post(
   '/clerk',
   express.json({
@@ -29,16 +71,32 @@ app.post(
   clerkWebhooks
 );
 
-//NORMAL MIDDLEWARE
-app.use(cors());
+/* =========================
+   NORMAL JSON PARSER
+   ========================= */
 app.use(express.json({ limit: '5mb' }));
+
+/* =========================
+   CLERK AUTH MIDDLEWARE
+   ========================= */
 app.use(clerkMiddleware());
 
-//ROUTES
-app.get('/', (req, res) => res.send('API Working'));
+/* =========================
+   ROUTES
+   ========================= */
+app.get('/', (req, res) => {
+  res.send('API Working');
+});
+
 app.use('/api/educator', educatorRouter);
 app.use('/api/course', courseRouter);
 app.use('/api/user', userRouter);
 
+/* =========================
+   SERVER
+   ========================= */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});

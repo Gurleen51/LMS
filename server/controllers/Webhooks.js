@@ -65,6 +65,8 @@ export const clerkWebhooks = async (req, res) => {
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const stripeWebhooks = async (request, response) => {
+    console.log('🔥 STRIPE WEBHOOK RECEIVED');
+
     const sig = request.headers['stripe-signature'];
     let event;
 
@@ -79,10 +81,14 @@ export const stripeWebhooks = async (request, response) => {
     // Standard event for Stripe Checkout success
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-        const { purchaseId } = session.metadata;
+        const { purchaseData } = session.metadata;
 
         try {
-            const purchaseData = await Purchase.findById(purchaseId);
+            const purchaseId = session.metadata?.purchaseId;
+            if (!purchaseId) {
+                console.error('❌ purchaseId missing in Stripe metadata');
+                return response.json({ received: true });
+            }
             
             // Check if purchase exists and isn't already processed
             if (!purchaseData || purchaseData.status === 'completed') {
@@ -94,8 +100,14 @@ export const stripeWebhooks = async (request, response) => {
 
             if (userData && courseData) {
                 // Finalize enrollment in both models
-                courseData.enrolledStudents.push(userData._id);
-                userData.enrolledCourses.push(courseData._id);
+                if (!courseData.enrolledStudents.includes(userData._id)) {
+                    courseData.enrolledStudents.push(userData._id);
+                }
+
+                if (!userData.enrolledCourses.includes(courseData._id)) {
+                    userData.enrolledCourses.push(courseData._id);
+                }
+
                 purchaseData.status = 'completed';
 
                 // Save updates simultaneously
@@ -120,5 +132,4 @@ export const stripeWebhooks = async (request, response) => {
         }
     }
 
-    response.json({ received: true });
-}
+    response.json({ received: true });

@@ -62,8 +62,6 @@ export const clerkWebhooks = async (req, res) => {
     }
 }
 
-const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 export const stripeWebhooks = async (request, response) => {
     console.log('🔥 STRIPE WEBHOOK RECEIVED');
 
@@ -81,15 +79,15 @@ export const stripeWebhooks = async (request, response) => {
     // Standard event for Stripe Checkout success
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-        const { purchaseData } = session.metadata;
-
-        try {
-            const purchaseId = session.metadata?.purchaseId;
+        const purchaseId = session.metadata?.purchaseId;
             if (!purchaseId) {
                 console.error('❌ purchaseId missing in Stripe metadata');
                 return response.json({ received: true });
             }
-            
+
+        try {
+            const purchaseData = await Purchase.findById(purchaseId);
+
             // Check if purchase exists and isn't already processed
             if (!purchaseData || purchaseData.status === 'completed') {
                 return response.json({ received: true });
@@ -132,4 +130,5 @@ export const stripeWebhooks = async (request, response) => {
         }
     }
 
-    response.json({ received: true });
+    response.json({ received: true });
+}

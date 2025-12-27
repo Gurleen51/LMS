@@ -68,9 +68,11 @@ export const purchaseCourse = async (req, res)=>{
             quantity: 1
         }]
 
+        const frontendUrl = process.env.FRONTEND_URL;
+
         const session = await stripeInstance.checkout.sessions.create({
-            success_url: `${origin}/loading`,
-            cancel_url: `${origin}/`,
+            success_url: `${frontendUrl}/loading`,
+            cancel_url: `${frontendUrl}/`,
             line_items: line_items,
             mode: 'payment',
             metadata: {

@@ -18,6 +18,8 @@ await connectCloudinary()
 
 app.use(cors())
 
+app.post('/stripe', express.raw({ type: 'application/json'}), stripeWebhooks)
+
 app.use(
     express.json({
         verify: (req, res, buf) => {
@@ -37,7 +39,6 @@ app.post('/clerk', clerkWebhooks)
 app.use('/api/educator', educatorRouter)
 app.use('/api/course', courseRouter)
 app.use('/api/user', userRouter)
-app.post('/stripe', express.raw({ type: 'application/json'}), stripeWebhooks)
 
 // Port
 const PORT = process.env.port || 5000
